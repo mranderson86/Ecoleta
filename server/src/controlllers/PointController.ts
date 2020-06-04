@@ -40,6 +40,8 @@ class PointsController {
 
     await trx("points_items").insert(pointItems);
 
+    await trx.commit();
+
     return response.json({ ...point, id: point_id });
   }
 
@@ -52,7 +54,29 @@ class PointsController {
       response.status(400).json({ message: "Point not found" });
     }
 
-    return response.json(point);
+    const items = await tables("items")
+      .join("points_items", "items.id", "=", "points_items.item_id")
+      .where("points_items.point_id", id);
+
+    return response.json({ ...point, items });
+  }
+
+  async index(request: Request, response: Response) {
+    const { city, uf, items } = request.query;
+
+    const parsedItems = String(items)
+      .split(",")
+      .map((item) => Number(item.trim()));
+
+    const points = await tables("points")
+      .join("points_items", "points.id", "=", "points_items.point_id")
+      .whereIn("points_items.item_id", parsedItems)
+      .where("city", String(city))
+      .where("uf", String(uf))
+      .distinct()
+      .select("points.*");
+
+    return response.json(points);
   }
 }
 
