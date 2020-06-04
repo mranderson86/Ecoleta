@@ -1,10 +1,13 @@
 import express, { response } from "express";
 import path from "path";
+import cors from "cors";
 
 import Routes from "./routes";
 
 const app = express();
 const port = 3333;
+
+app.use(cors());
 
 app.use(express.json());
 
