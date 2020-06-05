@@ -76,6 +76,18 @@ const CreatePoint = () => {
             <h2>Ítens de Coleta</h2>
             <span>Selecione um ou mais itens abaixo</span>
           </legend>
+
+          <ul className="items-grid">
+            <li className="selected">
+              <img src="http://localhost:3333/uploads/oleo.svg" alt="" />
+              <span>Oleo de Cozinha</span>
+            </li>
+
+            <li>
+              <img src="http://localhost:3333/uploads/oleo.svg" alt="" />
+              <span>Oleo de Cozinha</span>
+            </li>
+          </ul>
         </fieldset>
       </form>
     </div>
