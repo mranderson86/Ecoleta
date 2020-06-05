@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { Map, TileLayer, Marker } from "react-leaflet";
 
-import api from "../../services/api";
+import Services from "../../services";
 
 import "./styles.css";
 import logo from "../../assets/logo.svg";
@@ -16,10 +16,16 @@ interface Item {
 
 const CreatePoint = () => {
   const [items, setItems] = useState<Item[]>([]);
+  const [ufs, setUfs] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedUf, setSelectUf] = useState("0");
+  const [selectedCity, setSelectCity] = useState("0");
 
   useEffect(() => {
-    (async function handleGetItems() {
-      const response = await api.get("items");
+    // Busca Items
+    (async function () {
+      const services = new Services();
+      const response = await services.api().get("items");
 
       if (response.data) {
         setItems(response.data);
@@ -27,12 +33,61 @@ const CreatePoint = () => {
     })();
   }, []);
 
+  useEffect(() => {
+    // Busca UFs
+    (async function () {
+      const services = new Services();
+      const response = await services.getUf();
+
+      if (response.data) {
+        const ufInitials = response.data.map((uf) => uf.sigla);
+
+        setUfs(ufInitials);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+
+    if (selectedUf === '0') {
+      return;
+    }
+
+    // Busca Cidades
+    (async function () {
+      const services = new Services();
+
+      const response = await services.getCity(selectedUf);
+
+      if (response.data) {
+        const cityNames = response.data.map((city) => city.nome);
+
+        setCities(cityNames);
+      }
+
+    })();
+  }, [selectedUf]);
+
+  const handleSelectUf = (event: ChangeEvent<HTMLSelectElement>) => {
+
+    const uf = event.target.value;
+
+    setSelectUf(uf);
+  }
+
+  const handleSelectCity = (event: ChangeEvent<HTMLSelectElement>) => {
+
+    const city = event.target.value;
+
+    setSelectCity(city);
+  }
+
   return (
     <div id="page-create-point">
       <header>
         <img src={logo} alt="Ecoleta" />
 
-        <Link to="/create-point">
+        <Link to="/">
           <span>
             <FiArrowLeft />
           </span>
@@ -87,17 +142,28 @@ const CreatePoint = () => {
           <div className="field-group">
             <div className="field">
               <label htmlFor="uf">Estado (UF)</label>
-              <select name="uf" id="uf">
+              <select name="uf" id="uf" onChange={handleSelectUf}>
                 <option value="0">Selecione uma UF</option>
+                {ufs.map((uf) => (
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="field">
               <label htmlFor="city">Cidade</label>
-              <select name="city" id="city">
+              <select name="city" id="city" onChange={handleSelectCity}>
                 <option value="0">Selecione uma cidade</option>
+                {cities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
               </select>
             </div>
+
           </div>
         </fieldset>
 
@@ -109,7 +175,7 @@ const CreatePoint = () => {
 
           <ul className="items-grid">
             {items.map((item) => (
-              <li key={item.id} className="selected">
+              <li key={item.id}>
                 <img src={item.image_url} alt={item.title} />
                 <span>{item.title}</span>
               </li>
