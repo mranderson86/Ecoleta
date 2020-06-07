@@ -17,7 +17,7 @@ class PointsController {
     const trx = await tables.transaction();
 
     const point = {
-      image: "image-fake",
+      image: request.file.filename,
       name,
       email,
       whatsapp,
@@ -28,15 +28,17 @@ class PointsController {
     };
 
     const ids = await trx("points").insert(point);
-
     const point_id = ids[0];
 
-    const pointItems = items.map((item_id: number) => {
-      return {
-        item_id,
-        point_id,
-      };
-    });
+    const pointItems = items
+      .split(",")
+      .map((item: string) => item.trim())
+      .map((item_id: number) => {
+        return {
+          item_id,
+          point_id,
+        };
+      });
 
     await trx("points_items").insert(pointItems);
 
@@ -54,11 +56,16 @@ class PointsController {
       response.status(400).json({ message: "Point not found" });
     }
 
+    const serializedPoint = {
+      ...point,
+      image_url: `http://192.168.0.199:3333/uploads/${point.image}`,
+    };
+
     const items = await tables("items")
       .join("points_items", "items.id", "=", "points_items.item_id")
       .where("points_items.point_id", id);
 
-    return response.json({ ...point, items });
+    return response.json({ point: serializedPoint, items });
   }
 
   async index(request: Request, response: Response) {
@@ -76,7 +83,14 @@ class PointsController {
       .distinct()
       .select("points.*");
 
-    return response.json(points);
+    const serializedPoints = points.map((point) => {
+      return {
+        ...point,
+        image_url: `http://192.168.0.199:3333/uploads/${point.image}`,
+      };
+    });
+
+    return response.json(serializedPoints);
   }
 }
 
