@@ -29,7 +29,7 @@ Projeto Ecoleta completo cuja a finalidade é **cadastrar** e **consultar** pont
 
 - Integração com Banco de Dados **SQLite 3**.
 
-![Web - Home](/assets/ecoleta_home960x480.png)
-![Web - Register](/assets/ecoleta_register400x680.png)
 ![Mobile - Home](/assets/ecoleta_mobile_home.png)
 ![Mobile - Query](/assets/ecoleta_mobile_query.png)
+![Web - Home](/assets/ecoleta_home960x480.png)
+![Web - Register](/assets/ecoleta_register400x680.png)
